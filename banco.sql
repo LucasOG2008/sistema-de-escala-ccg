@@ -1,0 +1,55 @@
+CREATE DATABASE IF NOT EXISTS escala_ccg CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+USE escala_ccg;
+
+CREATE TABLE IF NOT EXISTS salas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  livro_nome VARCHAR(150) NOT NULL,
+  licao_inicial INT NOT NULL DEFAULT 1,
+  licao_limit INT NOT NULL DEFAULT 50,
+  licao_atual INT NOT NULL DEFAULT 1
+);
+
+
+CREATE TABLE IF NOT EXISTS usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  senha_hash VARCHAR(255) NOT NULL,
+  telefone VARCHAR(30),
+  tipo_usuario VARCHAR(20) NOT NULL DEFAULT 'PROFESSOR',
+  sala_id INT NULL,
+  ativo TINYINT(1) NOT NULL DEFAULT 1,
+  criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS equipes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  sala_id INT NOT NULL,
+  FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS equipe_membros (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  equipe_id INT NOT NULL,
+  professor_id INT NOT NULL,
+  UNIQUE (equipe_id, professor_id),
+  FOREIGN KEY (equipe_id) REFERENCES equipes(id) ON DELETE CASCADE,
+  FOREIGN KEY (professor_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS escalas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  data_domingo DATE NOT NULL,
+  semana_numero INT NULL,
+  sala_id INT NOT NULL,
+  equipe_id INT NOT NULL,
+  numero_licao INT NOT NULL,
+  observacao VARCHAR(255) NULL,
+  UNIQUE (sala_id, data_domingo),
+  FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
+  FOREIGN KEY (equipe_id) REFERENCES equipes(id) ON DELETE CASCADE
+);
